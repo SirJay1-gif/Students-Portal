@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>CHARIS MODEL ACADEMY - Student Portal</title>
+<style>
+body { font-family: Arial, sans-serif; background: #fffaf0; color: #333; margin: 0; padding: 0; }
+header { background: #5c4033; color: #ffd700; padding: 15px; text-align: center; }
+.container { width: 90%; max-width: 900px; margin: 30px auto; background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.08); }
+h2 { color: #5c4033; text-align: center; margin-top: 0; }
+label { display: block; margin-top: 10px; color: #5c4033; }
+input, select, button { padding: 10px; margin: 8px 0; width: 100%; border: 1px solid #dcd5c6; border-radius: 6px; box-sizing: border-box; }
+button { background: #d4af37; color: #fff; border: none; cursor: pointer; font-weight: bold; }
+button:hover { background: #b8860b; }
+.small-btn { width: auto; display: inline-block; padding: 8px 12px; font-size: 0.95em; margin-right: 10px; }
+.helper-text { font-size: 0.95em; color: #6b5b4b; margin-top: -4px; margin-bottom: 10px; }
+footer { margin-top: 30px; text-align: center; padding: 15px; background: #f9f9f9; border-top: 1px solid #ddd; color: #5c4033; font-weight: bold; }
+table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+th, td { padding: 10px; border: 1px solid #e6dfcd; text-align: center; }
+th { background: #5c4033; color: white; }
+.hidden { display: none; }
+@media print {
+button, #logoutBtn, #printBtn, #resetBtn { display: none !important; }
+.container { box-shadow: none; margin: 0; width: 100%; border-radius: 0; }
+footer { display: none; }
+}
+.report-header { text-align: center; margin-bottom: 20px; color: #5c4033; }
+.report-footer { margin-top: 40px; display: flex; justify-content: space-between; padding: 0 40px; }
+.signature { text-align: center; }
+.signature-line { margin-top: 60px; border-top: 1px solid #000; width: 200px; margin-left: auto; margin-right: auto; }
+</style>
+</head>
+<body>
+
+<header>
+<h1>CHARIS MODEL ACADEMY - Student Portal</h1>
+</header>
+
+<div class="container" id="loginPage">
+<h2>Login</h2>
+
+<label for="role">Select Role:</label>
+<select id="role">
+<option value="student">Student</option>
+<option value="teacher">Teacher</option>
+</select>
+
+<label for="idInput">Enter ID:</label>
+<input type="text" id="idInput" placeholder="Enter Student ID or Staff ID">
+
+<p class="helper-text" id="helperText">
+🔑 <strong>Student ID format:</strong> CMA/STU/B1/001 &nbsp; | &nbsp;
+<strong>Teacher ID format:</strong> CMA-TE001
+</p>
+
+<div style="display:flex; gap:10px; align-items:center;">
+<button onclick="login()">Login</button>
+<button id="resetBtn" class="small-btn" style="background:#5c4033;color:#ffd700;border-radius:6px;" onclick="resetData()">Reset Data</button>
+<span style="color:#7a6a5a; font-size:0.95em;">(Use Reset if old data prevents login)</span>
+</div>
+</div>
+
+<div class="container hidden" id="teacherPage">
+<h2>Teacher Dashboard</h2>
+
+<label for="levelSelect">Select Level:</label>
+<select id="levelSelect"></select>
+
+<label for="studentSelect">Select Student:</label>
+<select id="studentSelect"></select>
+
+<label for="nameInput">Student Name:</label>
+<input type="text" id="nameInput" placeholder="Enter student full name">
+
+<label for="subjectSelect">Subject:</label>
+<select id="subjectSelect"></select>
+
+<label for="scoreInput">Score (0-100):</label>
+<input type="number" id="scoreInput" placeholder="Enter score">
+
+<button onclick="saveGrade()">Save / Update</button>
+<button id="logoutBtn" class="small-btn" style="background:#a65f2a;color:#fff;" onclick="logout()">Logout</button>
+
+<div id="teacherOutput"></div>
+</div>
+
+<div class="container hidden" id="studentPage">
+<h2>Student Dashboard</h2>
+<div id="studentOutput"></div>
+<button id="printBtn" onclick="window.print()">Print Report Card</button>
+<button id="logoutBtn" class="small-btn" style="background:#a65f2a;color:#fff;" onclick="logout()">Logout</button>
+</div>
+
+<footer>
+Sir Jay Consults 2024
+</footer>
+
+<script>
+// SUBJECT LIST
+const subjects = [
+"English Language","Social Studies","Mathematics","Integrated Science","French",
+"Creative Arts and Design","Career Technology","Computing","Religious and Moral Education",
+"Ghanaian Language"
+];
+
+// DEFAULT DATA (used when no portalData in localStorage)
+const DEFAULT = {
+levels: ["B1","B2","B3","B4","B5","B6","JHS1","JHS2","JHS3"],
+students: {},
+teachers: ["CMA-TE001","CMA-TE002"]
+};
+
+// Load and normalize stored data (if any)
+let data = JSON.parse(localStorage.getItem("portalData"));
+if (!data || typeof data !== "object") {
+data = JSON.parse(JSON.stringify(DEFAULT));
+} else {
+// normalize teacher IDs stored previously (remove spaces, uppercase)
+if (Array.isArray(data.teachers)) {
+data.teachers = data.teachers.map(t => String(t).toUpperCase().replace(/\s+/g, ""));
+} else {
+data.teachers = DEFAULT.teachers.slice();
+}
+// make sure levels exist
+if (!Array.isArray(data.levels) || data.levels.length === 0) data.levels = DEFAULT.levels.slice();
+if (typeof data.students !== "object") data.students = {};
+}
+
+// Generate students for each level when missing (keeps existing ones)
+data.levels.forEach(level => {
+if (!Array.isArray(data.students[level]) || data.students[level].length === 0) {
+data.students[level] = [];
+for (let i = 1; i <= 50; i++) {
+let grades = {};
+subjects.forEach(sub => grades[sub] = { score: "", grade: "", remark: "" });
+data.students[level].push({
+id: `CMA/STU/${level}/${i.toString().padStart(3,'0')}`,
+name: `Student ${i.toString().padStart(3,'0')}`,
+grades: grades
+});
+}
+} else {
+// ensure every student has all subjects (migrate old data)
+data.students[level].forEach(st => {
+if (!st.grades) st.grades = {};
+subjects.forEach(sub => {
+if (!st.grades[sub]) st.grades[sub] = { score: "", grade: "", remark: "" };
+});
+// normalize id & name types
+st.id = String(st.id).toUpperCase();
+if (!st.name) st.name = "Unnamed";
+});
+}
+});
+
+// persist normalized/migrated data back to localStorage
+saveData();
+
+// Helper: save to localStorage
+function saveData() {
+localStorage.setItem("portalData", JSON.stringify(data));
+}
+
+// Reset (clear stored data and regenerate defaults)
+function resetData() {
+if (!confirm("Reset system data to defaults? This will clear any custom names/scores saved in this browser.")) return;
+localStorage.removeItem("portalData");
+location.reload();
+}
+
+// UI state
+let currentUser = null;
+
+// LOGIN logic (robust and case-insensitive)
+function login() {
+const role = document.getElementById("role").value;
+let idRaw = document.getElementById("idInput").value || "";
+const idTrimmed = idRaw.trim();
+
+if (!idTrimmed) { alert("Please enter an ID."); return; }
+
+if (role === "teacher") {
+// Accept both CMA-TE001 and CMA-TE 001 (normalize by removing spaces)
+const teacherPattern = /^CMA-TE\s?\d{3}$/i;
+if (!teacherPattern.test(idTrimmed)) {
+alert("Invalid Staff ID! Correct format: CMA-TE001 (or CMA-TE 001).");
+return;
+}
+const idNorm = idTrimmed.toUpperCase().replace(/\s+/g, "");
+// normalize data.teachers too (should be already normalized)
+data.teachers = data.teachers.map(t => String(t).toUpperCase().replace(/\s+/g, ""));
+saveData();
+if (data.teachers.includes(idNorm)) {
+currentUser = { role: "teacher", id: idNorm };
+showTeacherPage();
+} else {
+alert("Staff not found. Make sure the teacher ID exists (e.g. CMA-TE001).");
+}
+} else {
+// STUDENT login
+// Accept pattern CMA/STU/B1/001 (case-insensitive)
+const studentPattern = /^CMA\/STU\/(B[1-6]|JHS[1-3])\/\d{3}$/i;
+if (!studentPattern.test(idTrimmed)) {
+alert("Invalid Student ID! Correct format: CMA/STU/B1/001 (case-insensitive).");
+return;
+}
+const idNorm = idTrimmed.toUpperCase();
+
+// Search across all levels case-insensitively (robust)
+let found = null;
+for (let lvl of data.levels) {
+const arr = data.students[lvl] || [];
+for (let s of arr) {
+if (String(s.id).toUpperCase() === idNorm) {
+found = { student: s, level: lvl };
+break;
+}
+}
+if (found) break;
+}
+
+if (found) {
+currentUser = { role: "student", id: found.student.id, level: found.level };
+showStudentPage(found.student, found.level);
+} else {
+// fallback: parse level from id and look inside that level specifically
+const match = idNorm.match(/^CMA\/STU\/(B[1-6]|JHS[1-3])\/(\d{3})$/i);
+if (match) {
+const level = match[1].toUpperCase();
+const arr = data.students[level] || [];
+const stu = arr.find(s => String(s.id).toUpperCase() === idNorm);
+if (stu) {
+currentUser = { role: "student", id: stu.id, level: level };
+showStudentPage(stu, level);
+return;
+}
+}
+alert("Student not found! If you recently used an old version, click Reset Data to rebuild default students.");
+}
+}
+}
+
+// Build teacher dashboard
+function showTeacherPage() {
+document.getElementById("loginPage").classList.add("hidden");
+document.getElementById("teacherPage").classList.remove("hidden");
+
+const levelSelect = document.getElementById("levelSelect");
+levelSelect.innerHTML = "";
+data.levels.forEach(lvl => {
+const opt = document.createElement("option"); opt.value = lvl; opt.textContent = lvl; levelSelect.appendChild(opt);
+});
+
+updateStudentList();
+
+const subjectSelect = document.getElementById("subjectSelect");
+subjectSelect.innerHTML = "";
+subjects.forEach(sub => {
+const opt = document.createElement("option"); opt.value = sub; opt.textContent = sub; subjectSelect.appendChild(opt);
+});
+
+document.getElementById("teacherOutput").innerHTML = `<p style="color:#5c4033;">Logged in as: ${currentUser.id}</p>`;
+}
+
+// Update student pulldown for selected level
+function updateStudentList() {
+const level = document.getElementById("levelSelect").value;
+const studentSelect = document.getElementById("studentSelect");
+studentSelect.innerHTML = "";
+const arr = data.students[level] || [];
+arr.forEach(s => {
+const opt = document.createElement("option");
+opt.value = s.id;
+opt.textContent = `${s.name || "Unnamed"} (${s.id})`;
+studentSelect.appendChild(opt);
+});
+}
+document.getElementById("levelSelect").addEventListener("change", updateStudentList);
+
+// Grade helpers
+function getGradeRemark(score) {
+if (score >= 80) return { grade: "A", remark: "Excellent" };
+if (score >= 70) return { grade: "B", remark: "Very Good" };
+if (score >= 60) return { grade: "C", remark: "Good" };
+if (score >= 50) return { grade: "D", remark: "Credit" };
+if (score >= 40) return { grade: "E", remark: "Pass" };
+return { grade: "F", remark: "Fail" };
+}
+
+// Save grade & optionally name
+function saveGrade() {
+const level = document.getElementById("levelSelect").value;
+const studentId = document.getElementById("studentSelect").value;
+const name = document.getElementById("nameInput").value.trim();
+const subject = document.getElementById("subjectSelect").value;
+const scoreVal = document.getElementById("scoreInput").value;
+const score = scoreVal === "" ? NaN : parseFloat(scoreVal);
+
+if (!subject || isNaN(score)) { alert("Please select subject and enter numeric score (0-100)."); return; }
+if (score < 0 || score > 100) { alert("Score must be between 0 and 100."); return; }
+
+const student = (data.students[level] || []).find(s => s.id === studentId);
+if (!student) { alert("Student not found in selected level."); return; }
+
+if (name) student.name = name;
+const { grade, remark } = getGradeRemark(score);
+student.grades[subject] = { score, grade, remark };
+saveData();
+document.getElementById("teacherOutput").innerHTML = `<p style="color:#2b6f2b;">Saved: ${student.name} (${student.id}) - ${subject}: ${score} (${grade})</p>`;
+updateStudentList();
+}
+
+// Average & remark helpers
+function calculateAverage(grades) {
+let total = 0, count = 0;
+for (let sub in grades) {
+const val = parseFloat(grades[sub].score);
+if (!isNaN(val)) { total += val; count++; }
+}
+return count > 0 ? (total / count).toFixed(2) : null;
+}
+function remarkFromAverage(avg) {
+if (avg === null) return "";
+avg = parseFloat(avg);
+if (avg >= 80) return "Excellent";
+if (avg >= 70) return "Very Good";
+if (avg >= 60) return "Good";
+if (avg >= 50) return "Credit";
+if (avg >= 40) return "Pass";
+return "Fail";
+}
+
+// Class position (ranking) based on numeric averages
+function getClassPosition(student, level) {
+const arr = (data.students[level] || []).map(s => ({ id: s.id, avg: calculateAverage(s.grades) })).filter(x => x.avg !== null);
+arr.sort((a,b) => b.avg - a.avg);
+const idx = arr.findIndex(x => x.id === student.id);
+if (idx === -1) return null;
+return { pos: idx + 1, total: data.students[level].length };
+}
+
+// Show student report
+function showStudentPage(student, level) {
+document.getElementById("loginPage").classList.add("hidden");
+document.getElementById("teacherPage").classList.add("hidden");
+document.getElementById("studentPage").classList.remove("hidden");
+
+const average = calculateAverage(student.grades);
+const overallRemark = remarkFromAverage(average);
+const positionData = getClassPosition(student, level);
+
+let out = `
+<div class="report-header">
+<h2>CHARIS MODEL ACADEMY</h2>
+<p><strong>Academic Year:</strong> 2024/2025 &nbsp; | &nbsp; <strong>Term:</strong> 1</p>
+</div>
+<h3>Report Card</h3>
+<p><strong>Name:</strong> ${student.name || "Unnamed"} &nbsp; | &nbsp;
+<strong>ID:</strong> ${student.id} &nbsp; | &nbsp;
+<strong>Level:</strong> ${level}</p>
+`;
+out += `<table><tr><th>Subject</th><th>Score</th><th>Grade</th><th>Remarks</th></tr>`;
+subjects.forEach(sub => {
+const g = student.grades[sub] || { score: "", grade: "", remark: "" };
+out += `<tr><td>${sub}</td><td>${g.score!==""?g.score:""}</td><td>${g.grade||""}</td><td>${g.remark||""}</td></tr>`;
+});
+out += `</table>`;
+out += `<p><strong>Average Score:</strong> ${average !== null ? average : "N/A"}</p>`;
+out += `<p><strong>Overall Remarks:</strong> ${overallRemark}</p>`;
+out += `<p><strong>Class Position:</strong> ${positionData ? positionData.pos + " out of " + positionData.total : "N/A"}</p>`;
+out += `<div class="report-footer"><div class="signature"><div class="signature-line"></div><p>Class Teacher</p></div><div class="signature"><div class="signature-line"></div><p>Headteacher</p></div></div>`;
+
+document.getElementById("studentOutput").innerHTML = out;
+}
+
+// Logout
+function logout() {
+currentUser = null;
+document.getElementById("loginPage").classList.remove("hidden");
+document.getElementById("teacherPage").classList.add("hidden");
+document.getElementById("studentPage").classList.add("hidden");
+document.getElementById("idInput").value = "";
+}
+</script>
+
+</body>
+</html>
+
