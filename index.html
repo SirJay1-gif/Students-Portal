@@ -36,6 +36,7 @@ footer { display: none; }
 <h1>CHARIS MODEL ACADEMY - Student Portal</h1>
 </header>
 
+<!-- LOGIN PAGE -->
 <div class="container" id="loginPage">
 <h2>Login</h2>
 
@@ -43,23 +44,25 @@ footer { display: none; }
 <select id="role">
 <option value="student">Student</option>
 <option value="teacher">Teacher</option>
+<option value="admin">Admin</option>
 </select>
 
 <label for="idInput">Enter ID:</label>
-<input type="text" id="idInput" placeholder="Enter Student ID or Staff ID">
+<input type="text" id="idInput" placeholder="Enter Student, Staff or Admin ID">
 
 <p class="helper-text" id="helperText">
-🔑 <strong>Student ID format:</strong> CMA/STU/B1/001 &nbsp; | &nbsp;
-<strong>Teacher ID format:</strong> CMA-TE001
+🔑 <strong>Student ID:</strong> CMA/STU/B1/001 &nbsp; | &nbsp;
+<strong>Teacher ID:</strong> CMA-TE001 &nbsp; | &nbsp;
+<strong>Admin ID:</strong> CMA-ADMIN001
 </p>
 
 <div style="display:flex; gap:10px; align-items:center;">
 <button onclick="login()">Login</button>
 <button id="resetBtn" class="small-btn" style="background:#5c4033;color:#ffd700;border-radius:6px;" onclick="resetData()">Reset Data</button>
-<span style="color:#7a6a5a; font-size:0.95em;">(Use Reset if old data prevents login)</span>
 </div>
 </div>
 
+<!-- TEACHER DASHBOARD -->
 <div class="container hidden" id="teacherPage">
 <h2>Teacher Dashboard</h2>
 
@@ -84,10 +87,31 @@ footer { display: none; }
 <div id="teacherOutput"></div>
 </div>
 
+<!-- STUDENT DASHBOARD -->
 <div class="container hidden" id="studentPage">
 <h2>Student Dashboard</h2>
 <div id="studentOutput"></div>
 <button id="printBtn" onclick="window.print()">Print Report Card</button>
+<button id="logoutBtn" class="small-btn" style="background:#a65f2a;color:#fff;" onclick="logout()">Logout</button>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div class="container hidden" id="adminPage">
+<h2>Admin Dashboard</h2>
+<p style="color:#5c4033;">Welcome, Admin</p>
+
+<h3>Manage Teachers</h3>
+<label for="newTeacherId">Add Teacher ID:</label>
+<input type="text" id="newTeacherId" placeholder="Format: CMA-TE081">
+<button onclick="addTeacher()">Add Teacher</button>
+
+<label for="removeTeacherId">Remove Teacher ID:</label>
+<input type="text" id="removeTeacherId" placeholder="Format: CMA-TE010">
+<button onclick="removeTeacher()">Remove Teacher</button>
+
+<h3>Teacher List</h3>
+<ul id="teacherList"></ul>
+
 <button id="logoutBtn" class="small-btn" style="background:#a65f2a;color:#fff;" onclick="logout()">Logout</button>
 </div>
 
@@ -103,75 +127,43 @@ const subjects = [
 "Ghanaian Language"
 ];
 
-// DEFAULT DATA (used when no portalData in localStorage)
+// DEFAULT DATA
 const DEFAULT = {
 levels: ["B1","B2","B3","B4","B5","B6","JHS1","JHS2","JHS3"],
 students: {},
-teachers: ["CMA-TE001","CMA-TE002"]
+teachers: [],
+admins: []
 };
 
-// Load and normalize stored data (if any)
+// Generate teacher IDs CMA-TE001 → CMA-TE080
+for (let i = 1; i <= 80; i++) {
+DEFAULT.teachers.push(`CMA-TE${i.toString().padStart(3,'0')}`);
+}
+
+// Generate admin IDs CMA-ADMIN001 → CMA-ADMIN005
+for (let i = 1; i <= 5; i++) {
+DEFAULT.admins.push(`CMA-ADMIN${i.toString().padStart(3,'0')}`);
+}
+
+// Load data
 let data = JSON.parse(localStorage.getItem("portalData"));
 if (!data || typeof data !== "object") {
 data = JSON.parse(JSON.stringify(DEFAULT));
-} else {
-// normalize teacher IDs stored previously (remove spaces, uppercase)
-if (Array.isArray(data.teachers)) {
-data.teachers = data.teachers.map(t => String(t).toUpperCase().replace(/\s+/g, ""));
-} else {
-data.teachers = DEFAULT.teachers.slice();
 }
-// make sure levels exist
-if (!Array.isArray(data.levels) || data.levels.length === 0) data.levels = DEFAULT.levels.slice();
-if (typeof data.students !== "object") data.students = {};
-}
+if (!data.levels) data.levels = DEFAULT.levels;
+if (!data.students) data.students = {};
+if (!data.teachers) data.teachers = DEFAULT.teachers;
+if (!data.admins) data.admins = DEFAULT.admins;
 
-// Generate students for each level when missing (keeps existing ones)
-data.levels.forEach(level => {
-if (!Array.isArray(data.students[level]) || data.students[level].length === 0) {
-data.students[level] = [];
-for (let i = 1; i <= 50; i++) {
-let grades = {};
-subjects.forEach(sub => grades[sub] = { score: "", grade: "", remark: "" });
-data.students[level].push({
-id: `CMA/STU/${level}/${i.toString().padStart(3,'0')}`,
-name: `Student ${i.toString().padStart(3,'0')}`,
-grades: grades
-});
-}
-} else {
-// ensure every student has all subjects (migrate old data)
-data.students[level].forEach(st => {
-if (!st.grades) st.grades = {};
-subjects.forEach(sub => {
-if (!st.grades[sub]) st.grades[sub] = { score: "", grade: "", remark: "" };
-});
-// normalize id & name types
-st.id = String(st.id).toUpperCase();
-if (!st.name) st.name = "Unnamed";
-});
-}
-});
-
-// persist normalized/migrated data back to localStorage
 saveData();
 
-// Helper: save to localStorage
-function saveData() {
-localStorage.setItem("portalData", JSON.stringify(data));
-}
+// Helper
+function saveData() { localStorage.setItem("portalData", JSON.stringify(data)); }
+function resetData() { localStorage.removeItem("portalData"); location.reload(); }
 
-// Reset (clear stored data and regenerate defaults)
-function resetData() {
-if (!confirm("Reset system data to defaults? This will clear any custom names/scores saved in this browser.")) return;
-localStorage.removeItem("portalData");
-location.reload();
-}
-
-// UI state
 let currentUser = null;
 
-// LOGIN logic (robust and case-insensitive)
+// LOGIN
 function login() {
 const role = document.getElementById("role").value;
 let idRaw = document.getElementById("idInput").value || "";
@@ -180,104 +172,85 @@ const idTrimmed = idRaw.trim();
 if (!idTrimmed) { alert("Please enter an ID."); return; }
 
 if (role === "teacher") {
-// Accept both CMA-TE001 and CMA-TE 001 (normalize by removing spaces)
 const teacherPattern = /^CMA-TE\s?\d{3}$/i;
-if (!teacherPattern.test(idTrimmed)) {
-alert("Invalid Staff ID! Correct format: CMA-TE001 (or CMA-TE 001).");
-return;
-}
+if (!teacherPattern.test(idTrimmed)) { alert("Invalid Teacher ID!"); return; }
 const idNorm = idTrimmed.toUpperCase().replace(/\s+/g, "");
-// normalize data.teachers too (should be already normalized)
-data.teachers = data.teachers.map(t => String(t).toUpperCase().replace(/\s+/g, ""));
-saveData();
 if (data.teachers.includes(idNorm)) {
 currentUser = { role: "teacher", id: idNorm };
 showTeacherPage();
-} else {
-alert("Staff not found. Make sure the teacher ID exists (e.g. CMA-TE001).");
+} else alert("Teacher not found.");
 }
-} else {
-// STUDENT login
-// Accept pattern CMA/STU/B1/001 (case-insensitive)
+else if (role === "student") {
 const studentPattern = /^CMA\/STU\/(B[1-6]|JHS[1-3])\/\d{3}$/i;
-if (!studentPattern.test(idTrimmed)) {
-alert("Invalid Student ID! Correct format: CMA/STU/B1/001 (case-insensitive).");
-return;
-}
+if (!studentPattern.test(idTrimmed)) { alert("Invalid Student ID!"); return; }
 const idNorm = idTrimmed.toUpperCase();
-
-// Search across all levels case-insensitively (robust)
 let found = null;
 for (let lvl of data.levels) {
 const arr = data.students[lvl] || [];
 for (let s of arr) {
-if (String(s.id).toUpperCase() === idNorm) {
-found = { student: s, level: lvl };
-break;
-}
+if (String(s.id).toUpperCase() === idNorm) { found = { student: s, level: lvl }; break; }
 }
 if (found) break;
 }
-
 if (found) {
 currentUser = { role: "student", id: found.student.id, level: found.level };
 showStudentPage(found.student, found.level);
-} else {
-// fallback: parse level from id and look inside that level specifically
-const match = idNorm.match(/^CMA\/STU\/(B[1-6]|JHS[1-3])\/(\d{3})$/i);
-if (match) {
-const level = match[1].toUpperCase();
-const arr = data.students[level] || [];
-const stu = arr.find(s => String(s.id).toUpperCase() === idNorm);
-if (stu) {
-currentUser = { role: "student", id: stu.id, level: level };
-showStudentPage(stu, level);
-return;
+} else alert("Student not found!");
 }
-}
-alert("Student not found! If you recently used an old version, click Reset Data to rebuild default students.");
-}
+else if (role === "admin") {
+const adminPattern = /^CMA-ADMIN\d{3}$/i;
+if (!adminPattern.test(idTrimmed)) { alert("Invalid Admin ID!"); return; }
+const idNorm = idTrimmed.toUpperCase();
+if (data.admins.includes(idNorm)) {
+currentUser = { role: "admin", id: idNorm };
+showAdminPage();
+} else alert("Admin not found.");
 }
 }
 
-// Build teacher dashboard
+// TEACHER DASHBOARD
 function showTeacherPage() {
 document.getElementById("loginPage").classList.add("hidden");
 document.getElementById("teacherPage").classList.remove("hidden");
-
 const levelSelect = document.getElementById("levelSelect");
 levelSelect.innerHTML = "";
 data.levels.forEach(lvl => {
-const opt = document.createElement("option"); opt.value = lvl; opt.textContent = lvl; levelSelect.appendChild(opt);
+const opt = document.createElement("option");
+opt.value = lvl; opt.textContent = lvl;
+levelSelect.appendChild(opt);
 });
-
 updateStudentList();
-
 const subjectSelect = document.getElementById("subjectSelect");
 subjectSelect.innerHTML = "";
 subjects.forEach(sub => {
 const opt = document.createElement("option"); opt.value = sub; opt.textContent = sub; subjectSelect.appendChild(opt);
 });
-
 document.getElementById("teacherOutput").innerHTML = `<p style="color:#5c4033;">Logged in as: ${currentUser.id}</p>`;
 }
 
-// Update student pulldown for selected level
 function updateStudentList() {
 const level = document.getElementById("levelSelect").value;
 const studentSelect = document.getElementById("studentSelect");
 studentSelect.innerHTML = "";
-const arr = data.students[level] || [];
-arr.forEach(s => {
+if (!data.students[level]) data.students[level] = [];
+if (data.students[level].length === 0) {
+for (let i = 1; i <= 50; i++) {
+let grades = {}; subjects.forEach(sub => grades[sub] = { score: "", grade: "", remark: "" });
+data.students[level].push({
+id: `CMA/STU/${level}/${i.toString().padStart(3,'0')}`,
+name: `Student ${i.toString().padStart(3,'0')}`,
+grades: grades
+});
+}
+}
+data.students[level].forEach(s => {
 const opt = document.createElement("option");
-opt.value = s.id;
-opt.textContent = `${s.name || "Unnamed"} (${s.id})`;
+opt.value = s.id; opt.textContent = `${s.name} (${s.id})`;
 studentSelect.appendChild(opt);
 });
 }
 document.getElementById("levelSelect").addEventListener("change", updateStudentList);
 
-// Grade helpers
 function getGradeRemark(score) {
 if (score >= 80) return { grade: "A", remark: "Excellent" };
 if (score >= 70) return { grade: "B", remark: "Very Good" };
@@ -287,21 +260,16 @@ if (score >= 40) return { grade: "E", remark: "Pass" };
 return { grade: "F", remark: "Fail" };
 }
 
-// Save grade & optionally name
 function saveGrade() {
 const level = document.getElementById("levelSelect").value;
 const studentId = document.getElementById("studentSelect").value;
 const name = document.getElementById("nameInput").value.trim();
 const subject = document.getElementById("subjectSelect").value;
-const scoreVal = document.getElementById("scoreInput").value;
-const score = scoreVal === "" ? NaN : parseFloat(scoreVal);
-
-if (!subject || isNaN(score)) { alert("Please select subject and enter numeric score (0-100)."); return; }
-if (score < 0 || score > 100) { alert("Score must be between 0 and 100."); return; }
-
-const student = (data.students[level] || []).find(s => s.id === studentId);
-if (!student) { alert("Student not found in selected level."); return; }
-
+const score = parseFloat(document.getElementById("scoreInput").value);
+if (!subject || isNaN(score)) { alert("Enter valid subject and score."); return; }
+if (score < 0 || score > 100) { alert("Score must be 0–100."); return; }
+const student = data.students[level].find(s => s.id === studentId);
+if (!student) { alert("Student not found."); return; }
 if (name) student.name = name;
 const { grade, remark } = getGradeRemark(score);
 student.grades[subject] = { score, grade, remark };
@@ -310,7 +278,7 @@ document.getElementById("teacherOutput").innerHTML = `<p style="color:#2b6f2b;">
 updateStudentList();
 }
 
-// Average & remark helpers
+// STUDENT DASHBOARD
 function calculateAverage(grades) {
 let total = 0, count = 0;
 for (let sub in grades) {
@@ -329,8 +297,6 @@ if (avg >= 50) return "Credit";
 if (avg >= 40) return "Pass";
 return "Fail";
 }
-
-// Class position (ranking) based on numeric averages
 function getClassPosition(student, level) {
 const arr = (data.students[level] || []).map(s => ({ id: s.id, avg: calculateAverage(s.grades) })).filter(x => x.avg !== null);
 arr.sort((a,b) => b.avg - a.avg);
@@ -338,51 +304,67 @@ const idx = arr.findIndex(x => x.id === student.id);
 if (idx === -1) return null;
 return { pos: idx + 1, total: data.students[level].length };
 }
-
-// Show student report
 function showStudentPage(student, level) {
 document.getElementById("loginPage").classList.add("hidden");
-document.getElementById("teacherPage").classList.add("hidden");
 document.getElementById("studentPage").classList.remove("hidden");
-
 const average = calculateAverage(student.grades);
 const overallRemark = remarkFromAverage(average);
 const positionData = getClassPosition(student, level);
-
 let out = `
 <div class="report-header">
 <h2>CHARIS MODEL ACADEMY</h2>
 <p><strong>Academic Year:</strong> 2024/2025 &nbsp; | &nbsp; <strong>Term:</strong> 1</p>
 </div>
 <h3>Report Card</h3>
-<p><strong>Name:</strong> ${student.name || "Unnamed"} &nbsp; | &nbsp;
-<strong>ID:</strong> ${student.id} &nbsp; | &nbsp;
-<strong>Level:</strong> ${level}</p>
+<p><strong>Name:</strong> ${student.name} &nbsp; | &nbsp; <strong>ID:</strong> ${student.id} &nbsp; | &nbsp; <strong>Level:</strong> ${level}</p>
 `;
 out += `<table><tr><th>Subject</th><th>Score</th><th>Grade</th><th>Remarks</th></tr>`;
 subjects.forEach(sub => {
 const g = student.grades[sub] || { score: "", grade: "", remark: "" };
-out += `<tr><td>${sub}</td><td>${g.score!==""?g.score:""}</td><td>${g.grade||""}</td><td>${g.remark||""}</td></tr>`;
+out += `<tr><td>${sub}</td><td>${g.score}</td><td>${g.grade}</td><td>${g.remark}</td></tr>`;
 });
 out += `</table>`;
-out += `<p><strong>Average Score:</strong> ${average !== null ? average : "N/A"}</p>`;
+out += `<p><strong>Average Score:</strong> ${average || "N/A"}</p>`;
 out += `<p><strong>Overall Remarks:</strong> ${overallRemark}</p>`;
 out += `<p><strong>Class Position:</strong> ${positionData ? positionData.pos + " out of " + positionData.total : "N/A"}</p>`;
 out += `<div class="report-footer"><div class="signature"><div class="signature-line"></div><p>Class Teacher</p></div><div class="signature"><div class="signature-line"></div><p>Headteacher</p></div></div>`;
-
 document.getElementById("studentOutput").innerHTML = out;
 }
 
-// Logout
-function logout() {
-currentUser = null;
-document.getElementById("loginPage").classList.remove("hidden");
-document.getElementById("teacherPage").classList.add("hidden");
-document.getElementById("studentPage").classList.add("hidden");
-document.getElementById("idInput").value = "";
+// ADMIN DASHBOARD
+function showAdminPage() {
+document.getElementById("loginPage").classList.add("hidden");
+document.getElementById("adminPage").classList.remove("hidden");
+updateTeacherList();
 }
-</script>
+function addTeacher() {
+let id = document.getElementById("newTeacherId").value.trim().toUpperCase().replace(/\s+/g,"");
+const teacherPattern = /^CMA-TE\d{3}$/i;
+if (!teacherPattern.test(id)) { alert("Invalid format! Example: CMA-TE081"); return; }
+if (!data.teachers.includes(id)) {
+data.teachers.push(id); saveData(); updateTeacherList();
+alert("Teacher added successfully!");
+} else alert("Teacher already exists.");
+}
+function removeTeacher() {
+let id = document.getElementById("removeTeacherId").value.trim().toUpperCase().replace(/\s+/g,"");
+const index = data.teachers.indexOf(id);
+if (index > -1) {
+data.teachers.splice(index, 1); saveData(); updateTeacherList();
+alert("Teacher removed successfully!");
+} else alert("Teacher not found.");
+}
+function updateTeacherList() {
+const list = document.getElementById("teacherList"); list.innerHTML = "";
+data.teachers.forEach(t => {
+const li = document.createElement("li"); li.textContent = t; list.appendChild(li);
+});
+}
 
+// LOGOUT
+function logout() { location.reload(); }
+</script>
 </body>
 </html>
 
+	
