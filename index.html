@@ -1,370 +1,395 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>CHARIS MODEL ACADEMY - Student Portal</title>
+<meta charset="UTF-8">
+<title>CHARIS MODEL ACADEMY - Portal</title>
 <style>
-body { font-family: Arial, sans-serif; background: #fffaf0; color: #333; margin: 0; padding: 0; }
-header { background: #5c4033; color: #ffd700; padding: 15px; text-align: center; }
-.container { width: 90%; max-width: 900px; margin: 30px auto; background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.08); }
-h2 { color: #5c4033; text-align: center; margin-top: 0; }
-label { display: block; margin-top: 10px; color: #5c4033; }
-input, select, button { padding: 10px; margin: 8px 0; width: 100%; border: 1px solid #dcd5c6; border-radius: 6px; box-sizing: border-box; }
-button { background: #d4af37; color: #fff; border: none; cursor: pointer; font-weight: bold; }
-button:hover { background: #b8860b; }
-.small-btn { width: auto; display: inline-block; padding: 8px 12px; font-size: 0.95em; margin-right: 10px; }
-.helper-text { font-size: 0.95em; color: #6b5b4b; margin-top: -4px; margin-bottom: 10px; }
-footer { margin-top: 30px; text-align: center; padding: 15px; background: #f9f9f9; border-top: 1px solid #ddd; color: #5c4033; font-weight: bold; }
-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-th, td { padding: 10px; border: 1px solid #e6dfcd; text-align: center; }
-th { background: #5c4033; color: white; }
-.hidden { display: none; }
-@media print {
-button, #logoutBtn, #printBtn, #resetBtn { display: none !important; }
-.container { box-shadow: none; margin: 0; width: 100%; border-radius: 0; }
-footer { display: none; }
+:root {
+  --wine: #722f37;
+  --cream: #f8f5e9;
+  --gold: #c9a646;
+  --white: #ffffff;
 }
-.report-header { text-align: center; margin-bottom: 20px; color: #5c4033; }
-.report-footer { margin-top: 40px; display: flex; justify-content: space-between; padding: 0 40px; }
-.signature { text-align: center; }
-.signature-line { margin-top: 60px; border-top: 1px solid #000; width: 200px; margin-left: auto; margin-right: auto; }
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: var(--cream);
+  color: var(--wine);
+}
+header {
+  background: var(--wine);
+  color: var(--gold);
+  padding: 20px;
+  text-align: center;
+  font-size: 1.6em;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+.container {
+  width: 90%;
+  max-width: 700px;
+  background: var(--white);
+  margin: 40px auto;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+.hidden { display: none; }
+label {
+  display: block;
+  margin: 12px 0 5px;
+  font-weight: bold;
+}
+input, select, button {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1em;
+}
+button {
+  background: var(--wine);
+  color: var(--white);
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+button:hover {
+  background: var(--gold);
+  color: var(--wine);
+}
+h2, h3, h4 { text-align: center; margin-top: 0; }
+.report-card {
+  background: var(--white);
+  border: 2px solid var(--gold);
+  border-radius: 10px;
+  padding: 20px;
+  max-width: 800px;
+  margin: auto;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+.report-card table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+.report-card th, .report-card td {
+  border: 1px solid var(--gold);
+  padding: 8px;
+  text-align: center;
+}
+.report-card th {
+  background: var(--wine);
+  color: var(--white);
+}
+.footer-info {
+  margin-top: 15px;
+  padding: 10px;
+  background: var(--cream);
+  border-radius: 8px;
+  font-weight: bold;
+}
+.signatures {
+  margin-top: 25px;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 40px;
+}
+.signature-block {
+  text-align: center;
+}
+.signature-line {
+  border-top: 1px solid #000;
+  width: 200px;
+  margin: 40px auto 5px;
+}
+.print-btn, .logout-btn {
+  display: block;
+  margin: 15px auto;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  background: var(--wine);
+  color: var(--white);
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+}
+.print-btn:hover, .logout-btn:hover {
+  background: var(--gold);
+  color: var(--wine);
+}
+@media print {
+  header, .print-btn, .logout-btn, footer { display: none; }
+  body { background: #fff; }
+  .report-card { box-shadow: none; border: 1px solid #000; }
+}
+footer {
+  text-align: center;
+  padding: 15px;
+  background: var(--wine);
+  color: var(--gold);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
 </style>
 </head>
 <body>
+<header>CHARIS MODEL ACADEMY - Portal</header>
 
-<header>
-<h1>CHARIS MODEL ACADEMY - Student Portal</h1>
-</header>
-
-<!-- LOGIN PAGE -->
+<!-- LOGIN -->
 <div class="container" id="loginPage">
-<h2>Login</h2>
-
-<label for="role">Select Role:</label>
-<select id="role">
-<option value="student">Student</option>
-<option value="teacher">Teacher</option>
-<option value="admin">Admin</option>
-</select>
-
-<label for="idInput">Enter ID:</label>
-<input type="text" id="idInput" placeholder="Enter Student, Staff or Admin ID">
-
-<p class="helper-text" id="helperText">
-🔑 <strong>Student ID:</strong> CMA/STU/B1/001 &nbsp; | &nbsp;
-<strong>Teacher ID:</strong> CMA-TE001 &nbsp; | &nbsp;
-<strong>Admin ID:</strong> CMA-ADMIN001
-</p>
-
-<div style="display:flex; gap:10px; align-items:center;">
-<button onclick="login()">Login</button>
-<button id="resetBtn" class="small-btn" style="background:#5c4033;color:#ffd700;border-radius:6px;" onclick="resetData()">Reset Data</button>
-</div>
-</div>
-
-<!-- TEACHER DASHBOARD -->
-<div class="container hidden" id="teacherPage">
-<h2>Teacher Dashboard</h2>
-
-<label for="levelSelect">Select Level:</label>
-<select id="levelSelect"></select>
-
-<label for="studentSelect">Select Student:</label>
-<select id="studentSelect"></select>
-
-<label for="nameInput">Student Name:</label>
-<input type="text" id="nameInput" placeholder="Enter student full name">
-
-<label for="subjectSelect">Subject:</label>
-<select id="subjectSelect"></select>
-
-<label for="scoreInput">Score (0-100):</label>
-<input type="number" id="scoreInput" placeholder="Enter score">
-
-<button onclick="saveGrade()">Save / Update</button>
-<button id="logoutBtn" class="small-btn" style="background:#a65f2a;color:#fff;" onclick="logout()">Logout</button>
-
-<div id="teacherOutput"></div>
+  <h2>Login</h2>
+  <label for="role">Select Role:</label>
+  <select id="role">
+    <option value="student">Student</option>
+    <option value="teacher">Teacher</option>
+    <option value="admin">Admin</option>
+  </select>
+  <label for="idInput">Enter ID:</label>
+  <input type="text" id="idInput" placeholder="Enter ID">
+  <button onclick="login()">Login</button>
 </div>
 
 <!-- STUDENT DASHBOARD -->
 <div class="container hidden" id="studentPage">
-<h2>Student Dashboard</h2>
-<div id="studentOutput"></div>
-<button id="printBtn" onclick="window.print()">Print Report Card</button>
-<button id="logoutBtn" class="small-btn" style="background:#a65f2a;color:#fff;" onclick="logout()">Logout</button>
+  <h2>Student Dashboard</h2>
+  <div id="studentContent"></div>
+  <button class="logout-btn" onclick="logout()">Logout</button>
+</div>
+
+<!-- TEACHER DASHBOARD -->
+<div class="container hidden" id="teacherPage">
+  <h2>Teacher Dashboard</h2>
+  <label for="levelSelect">Select Level:</label>
+  <select id="levelSelect"></select>
+  <label for="studentSelect">Select Student:</label>
+  <select id="studentSelect"></select>
+  <label for="nameInput">Student Full Name:</label>
+  <input type="text" id="nameInput" placeholder="Enter Full Name">
+  <label for="subjectSelect">Select Subject:</label>
+  <select id="subjectSelect"></select>
+  <label for="scoreInput">Enter Score (0-100):</label>
+  <input type="number" id="scoreInput">
+  <button onclick="saveGrade()">Save Grade</button>
+  <div id="teacherMsg"></div>
+  <button class="logout-btn" onclick="logout()">Logout</button>
 </div>
 
 <!-- ADMIN DASHBOARD -->
 <div class="container hidden" id="adminPage">
-<h2>Admin Dashboard</h2>
-<p style="color:#5c4033;">Welcome, Admin</p>
-
-<h3>Manage Teachers</h3>
-<label for="newTeacherId">Add Teacher ID:</label>
-<input type="text" id="newTeacherId" placeholder="Format: CMA-TE081">
-<button onclick="addTeacher()">Add Teacher</button>
-
-<label for="removeTeacherId">Remove Teacher ID:</label>
-<input type="text" id="removeTeacherId" placeholder="Format: CMA-TE010">
-<button onclick="removeTeacher()">Remove Teacher</button>
-
-<h3>Teacher List</h3>
-<ul id="teacherList"></ul>
-
-<button id="logoutBtn" class="small-btn" style="background:#a65f2a;color:#fff;" onclick="logout()">Logout</button>
+  <h2>Admin Dashboard</h2>
+  <h3>Manage Teachers</h3>
+  <label for="newTeacherId">Add Teacher ID:</label>
+  <input type="text" id="newTeacherId" placeholder="CMA-TE001">
+  <button onclick="addTeacher()">Add Teacher</button>
+  <label for="removeTeacherId">Remove Teacher ID:</label>
+  <input type="text" id="removeTeacherId" placeholder="CMA-TE001">
+  <button onclick="removeTeacher()">Remove Teacher</button>
+  <h3>All Teachers</h3>
+  <ul id="teacherList"></ul>
+  <h3>Modify Student Results</h3>
+  <label for="adminLevelSelect">Select Level:</label>
+  <select id="adminLevelSelect"></select>
+  <label for="adminStudentSelect">Select Student:</label>
+  <select id="adminStudentSelect"></select>
+  <label for="adminNameInput">Student Full Name:</label>
+  <input type="text" id="adminNameInput" placeholder="Enter Full Name">
+  <label for="adminSubjectSelect">Select Subject:</label>
+  <select id="adminSubjectSelect"></select>
+  <label for="adminScoreInput">Enter Score (0-100):</label>
+  <input type="number" id="adminScoreInput">
+  <button onclick="adminUpdateGrade()">Update Result</button>
+  <div id="adminMsg"></div>
+  <button class="logout-btn" onclick="logout()">Logout</button>
 </div>
 
-<footer>
-Sir Jay Consults 2024
-</footer>
+<footer>Charis Model Academy © 2025</footer>
 
 <script>
-// SUBJECT LIST
-const subjects = [
-"English Language","Social Studies","Mathematics","Integrated Science","French",
-"Creative Arts and Design","Career Technology","Computing","Religious and Moral Education",
-"Ghanaian Language"
-];
+/* SUBJECTS & LEVELS */
+const subjects={core:["English Language","Social Studies","Integrated Science","Mathematics"],
+elective:["Career Technology","Creative Arts and Design","French Language","Ghanaian Language (Ga, Dangme, Twi, Fante, Nzema, Ewe, etc)","Computing","History"]};
+const allSubjects=[...subjects.core,...subjects.elective];
+const levels=["B1","B2","B3","B4","B5","B6","JHS1","JHS2","JHS3"];
+let data={students:{},teachers:["CMA-TE001"],admins:["CMA-ADMIN001"]};
 
-// DEFAULT DATA
-const DEFAULT = {
-levels: ["B1","B2","B3","B4","B5","B6","JHS1","JHS2","JHS3"],
-students: {},
-teachers: [],
-admins: []
-};
-
-// Generate teacher IDs CMA-TE001 → CMA-TE080
-for (let i = 1; i <= 80; i++) {
-DEFAULT.teachers.push(`CMA-TE${i.toString().padStart(3,'0')}`);
-}
-
-// Generate admin IDs CMA-ADMIN001 → CMA-ADMIN005
-for (let i = 1; i <= 5; i++) {
-DEFAULT.admins.push(`CMA-ADMIN${i.toString().padStart(3,'0')}`);
-}
-
-// Load data
-let data = JSON.parse(localStorage.getItem("portalData"));
-if (!data || typeof data !== "object") {
-data = JSON.parse(JSON.stringify(DEFAULT));
-}
-if (!data.levels) data.levels = DEFAULT.levels;
-if (!data.students) data.students = {};
-if (!data.teachers) data.teachers = DEFAULT.teachers;
-if (!data.admins) data.admins = DEFAULT.admins;
-
-saveData();
-
-// Helper
-function saveData() { localStorage.setItem("portalData", JSON.stringify(data)); }
-function resetData() { localStorage.removeItem("portalData"); location.reload(); }
-
-let currentUser = null;
-
-// LOGIN
-function login() {
-const role = document.getElementById("role").value;
-let idRaw = document.getElementById("idInput").value || "";
-const idTrimmed = idRaw.trim();
-
-if (!idTrimmed) { alert("Please enter an ID."); return; }
-
-if (role === "teacher") {
-const teacherPattern = /^CMA-TE\s?\d{3}$/i;
-if (!teacherPattern.test(idTrimmed)) { alert("Invalid Teacher ID!"); return; }
-const idNorm = idTrimmed.toUpperCase().replace(/\s+/g, "");
-if (data.teachers.includes(idNorm)) {
-currentUser = { role: "teacher", id: idNorm };
-showTeacherPage();
-} else alert("Teacher not found.");
-}
-else if (role === "student") {
-const studentPattern = /^CMA\/STU\/(B[1-6]|JHS[1-3])\/\d{3}$/i;
-if (!studentPattern.test(idTrimmed)) { alert("Invalid Student ID!"); return; }
-const idNorm = idTrimmed.toUpperCase();
-let found = null;
-for (let lvl of data.levels) {
-const arr = data.students[lvl] || [];
-for (let s of arr) {
-if (String(s.id).toUpperCase() === idNorm) { found = { student: s, level: lvl }; break; }
-}
-if (found) break;
-}
-if (found) {
-currentUser = { role: "student", id: found.student.id, level: found.level };
-showStudentPage(found.student, found.level);
-} else alert("Student not found!");
-}
-else if (role === "admin") {
-const adminPattern = /^CMA-ADMIN\d{3}$/i;
-if (!adminPattern.test(idTrimmed)) { alert("Invalid Admin ID!"); return; }
-const idNorm = idTrimmed.toUpperCase();
-if (data.admins.includes(idNorm)) {
-currentUser = { role: "admin", id: idNorm };
-showAdminPage();
-} else alert("Admin not found.");
-}
-}
-
-// TEACHER DASHBOARD
-function showTeacherPage() {
-document.getElementById("loginPage").classList.add("hidden");
-document.getElementById("teacherPage").classList.remove("hidden");
-const levelSelect = document.getElementById("levelSelect");
-levelSelect.innerHTML = "";
-data.levels.forEach(lvl => {
-const opt = document.createElement("option");
-opt.value = lvl; opt.textContent = lvl;
-levelSelect.appendChild(opt);
+/* Initialize Students */
+levels.forEach(lvl=>{
+  data.students[lvl]=[];
+  for(let i=1;i<=50;i++){
+    let g={}; allSubjects.forEach(s=>g[s]={score:null,grade:"",remark:""});
+    data.students[lvl].push({id:`CMA/STU/${lvl}/${i.toString().padStart(3,"0")}`,name:`Student ${i}`,level:lvl,grades:g});
+  }
 });
-updateStudentList();
-const subjectSelect = document.getElementById("subjectSelect");
-subjectSelect.innerHTML = "";
-subjects.forEach(sub => {
-const opt = document.createElement("option"); opt.value = sub; opt.textContent = sub; subjectSelect.appendChild(opt);
-});
-document.getElementById("teacherOutput").innerHTML = `<p style="color:#5c4033;">Logged in as: ${currentUser.id}</p>`;
+
+/* GRADE REMARK FUNCTION */
+function getGradeRemark(score){
+  if(score>=80) return {grade:"A",remark:"Excellent"};
+  if(score>=70) return {grade:"B",remark:"Very Good"};
+  if(score>=60) return {grade:"C",remark:"Good"};
+  if(score>=50) return {grade:"D",remark:"Pass"};
+  if(score>=40) return {grade:"E",remark:"Pass"};
+  return {grade:"F",remark:"Fail"};
 }
 
-function updateStudentList() {
-const level = document.getElementById("levelSelect").value;
-const studentSelect = document.getElementById("studentSelect");
-studentSelect.innerHTML = "";
-if (!data.students[level]) data.students[level] = [];
-if (data.students[level].length === 0) {
-for (let i = 1; i <= 50; i++) {
-let grades = {}; subjects.forEach(sub => grades[sub] = { score: "", grade: "", remark: "" });
-data.students[level].push({
-id: `CMA/STU/${level}/${i.toString().padStart(3,'0')}`,
-name: `Student ${i.toString().padStart(3,'0')}`,
-grades: grades
-});
-}
-}
-data.students[level].forEach(s => {
-const opt = document.createElement("option");
-opt.value = s.id; opt.textContent = `${s.name} (${s.id})`;
-studentSelect.appendChild(opt);
-});
-}
-document.getElementById("levelSelect").addEventListener("change", updateStudentList);
+let currentUser=null;
 
-function getGradeRemark(score) {
-if (score >= 80) return { grade: "A", remark: "Excellent" };
-if (score >= 70) return { grade: "B", remark: "Very Good" };
-if (score >= 60) return { grade: "C", remark: "Good" };
-if (score >= 50) return { grade: "D", remark: "Credit" };
-if (score >= 40) return { grade: "E", remark: "Pass" };
-return { grade: "F", remark: "Fail" };
+/* LOGIN */
+function login(){
+  let role=document.getElementById("role").value;
+  let id=document.getElementById("idInput").value.trim().toUpperCase();
+  if(role==="student"){
+    for(let lvl of levels){
+      let stu=data.students[lvl].find(s=>s.id===id);
+      if(stu){ currentUser={role:"student",user:stu}; showStudentPage(stu); return; }
+    }
+    alert("Student not found!");
+  }
+  if(role==="teacher"){
+    if(data.teachers.includes(id)){currentUser={role:"teacher",id};showTeacherPage();return;}
+    alert("Teacher not found!");
+  }
+  if(role==="admin"){
+    if(data.admins.includes(id)){currentUser={role:"admin",id};showAdminPage();return;}
+    alert("Admin not found!");
+  }
 }
 
-function saveGrade() {
-const level = document.getElementById("levelSelect").value;
-const studentId = document.getElementById("studentSelect").value;
-const name = document.getElementById("nameInput").value.trim();
-const subject = document.getElementById("subjectSelect").value;
-const score = parseFloat(document.getElementById("scoreInput").value);
-if (!subject || isNaN(score)) { alert("Enter valid subject and score."); return; }
-if (score < 0 || score > 100) { alert("Score must be 0–100."); return; }
-const student = data.students[level].find(s => s.id === studentId);
-if (!student) { alert("Student not found."); return; }
-if (name) student.name = name;
-const { grade, remark } = getGradeRemark(score);
-student.grades[subject] = { score, grade, remark };
-saveData();
-document.getElementById("teacherOutput").innerHTML = `<p style="color:#2b6f2b;">Saved: ${student.name} (${student.id}) - ${subject}: ${score} (${grade})</p>`;
-updateStudentList();
+/* STUDENT FUNCTIONS */
+function calculateAverage(grades){
+  let scores=Object.values(grades).map(g=>g.score).filter(s=>!isNaN(s)&&s!==null);
+  if(scores.length===0) return 0;
+  return (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(2);
+}
+function getRemark(avg){
+  avg=parseFloat(avg);
+  if(avg>=80) return "Excellent";
+  if(avg>=70) return "Very Good";
+  if(avg>=60) return "Good";
+  if(avg>=50) return "Pass";
+  return "Fail";
+}
+function calculatePosition(stu){
+  let classmates=data.students[stu.level];
+  let averages=classmates.map(s=>({id:s.id,avg:parseFloat(calculateAverage(s.grades))||0}));
+  averages.sort((a,b)=>b.avg-a.avg);
+  return averages.findIndex(a=>a.id===stu.id)+1;
+}
+function showStudentPage(stu){
+  document.getElementById("loginPage").classList.add("hidden");
+  document.getElementById("studentPage").classList.remove("hidden");
+  let avg=calculateAverage(stu.grades);
+  let pos=calculatePosition(stu);
+  let remark=getRemark(avg);
+  let html=`<div class='report-card'><h2>CHARIS MODEL ACADEMY</h2><h3>Report Card</h3>
+  <p><strong>Name:</strong> ${stu.name} | <strong>ID:</strong> ${stu.id} | <strong>Level:</strong> ${stu.level}</p>`;
+  html+="<h4>Core Subjects</h4><table><tr><th>Subject</th><th>Score</th><th>Grade</th><th>Remark</th></tr>";
+  subjects.core.forEach(sub=>{
+    let g=stu.grades[sub];
+    html+=`<tr><td>${sub}</td><td>${g.score??"-"}</td><td>${g.grade}</td><td>${g.remark}</td></tr>`;
+  });
+  html+="</table><h4>Electives</h4><table><tr><th>Subject</th><th>Score</th><th>Grade</th><th>Remark</th></tr>";
+  subjects.elective.forEach(sub=>{
+    let g=stu.grades[sub];
+    html+=`<tr><td>${sub}</td><td>${g.score??"-"}</td><td>${g.grade}</td><td>${g.remark}</td></tr>`;
+  });
+  html+=`</table><div class="footer-info">Average: ${avg} | Position: ${pos}/${data.students[stu.level].length} | Remark: ${remark}</div>
+  <div class="signatures"><div class="signature-block"><div class="signature-line"></div>Headmaster</div>
+  <div class="signature-block"><div class="signature-line"></div>Class Teacher</div></div>
+  <button class='print-btn' onclick='window.print()'>🖨️ Print Report Card</button></div>`;
+  document.getElementById("studentContent").innerHTML=html;
 }
 
-// STUDENT DASHBOARD
-function calculateAverage(grades) {
-let total = 0, count = 0;
-for (let sub in grades) {
-const val = parseFloat(grades[sub].score);
-if (!isNaN(val)) { total += val; count++; }
+/* TEACHER FUNCTIONS */
+function showTeacherPage(){
+  document.getElementById("loginPage").classList.add("hidden");
+  document.getElementById("teacherPage").classList.remove("hidden");
+  let levelSel=document.getElementById("levelSelect");
+  levelSel.innerHTML=levels.map(l=>`<option value='${l}'>${l}</option>`).join("");
+  updateTeacherStudents();
+  let subSel=document.getElementById("subjectSelect");
+  subSel.innerHTML=allSubjects.map(s=>`<option value='${s}'>${s}</option>`).join("");
 }
-return count > 0 ? (total / count).toFixed(2) : null;
+function updateTeacherStudents(){
+  let lvl=document.getElementById("levelSelect").value;
+  let sel=document.getElementById("studentSelect");
+  sel.innerHTML=data.students[lvl].map(s=>`<option value='${s.id}'>${s.name} (${s.id})</option>`).join("");
 }
-function remarkFromAverage(avg) {
-if (avg === null) return "";
-avg = parseFloat(avg);
-if (avg >= 80) return "Excellent";
-if (avg >= 70) return "Very Good";
-if (avg >= 60) return "Good";
-if (avg >= 50) return "Credit";
-if (avg >= 40) return "Pass";
-return "Fail";
-}
-function getClassPosition(student, level) {
-const arr = (data.students[level] || []).map(s => ({ id: s.id, avg: calculateAverage(s.grades) })).filter(x => x.avg !== null);
-arr.sort((a,b) => b.avg - a.avg);
-const idx = arr.findIndex(x => x.id === student.id);
-if (idx === -1) return null;
-return { pos: idx + 1, total: data.students[level].length };
-}
-function showStudentPage(student, level) {
-document.getElementById("loginPage").classList.add("hidden");
-document.getElementById("studentPage").classList.remove("hidden");
-const average = calculateAverage(student.grades);
-const overallRemark = remarkFromAverage(average);
-const positionData = getClassPosition(student, level);
-let out = `
-<div class="report-header">
-<h2>CHARIS MODEL ACADEMY</h2>
-<p><strong>Academic Year:</strong> 2024/2025 &nbsp; | &nbsp; <strong>Term:</strong> 1</p>
-</div>
-<h3>Report Card</h3>
-<p><strong>Name:</strong> ${student.name} &nbsp; | &nbsp; <strong>ID:</strong> ${student.id} &nbsp; | &nbsp; <strong>Level:</strong> ${level}</p>
-`;
-out += `<table><tr><th>Subject</th><th>Score</th><th>Grade</th><th>Remarks</th></tr>`;
-subjects.forEach(sub => {
-const g = student.grades[sub] || { score: "", grade: "", remark: "" };
-out += `<tr><td>${sub}</td><td>${g.score}</td><td>${g.grade}</td><td>${g.remark}</td></tr>`;
-});
-out += `</table>`;
-out += `<p><strong>Average Score:</strong> ${average || "N/A"}</p>`;
-out += `<p><strong>Overall Remarks:</strong> ${overallRemark}</p>`;
-out += `<p><strong>Class Position:</strong> ${positionData ? positionData.pos + " out of " + positionData.total : "N/A"}</p>`;
-out += `<div class="report-footer"><div class="signature"><div class="signature-line"></div><p>Class Teacher</p></div><div class="signature"><div class="signature-line"></div><p>Headteacher</p></div></div>`;
-document.getElementById("studentOutput").innerHTML = out;
+document.getElementById("levelSelect").addEventListener("change",updateTeacherStudents);
+function saveGrade(){
+  let lvl=document.getElementById("levelSelect").value;
+  let stuId=document.getElementById("studentSelect").value;
+  let name=document.getElementById("nameInput").value.trim();
+  let sub=document.getElementById("subjectSelect").value;
+  let score=parseFloat(document.getElementById("scoreInput").value);
+  if(isNaN(score)||score<0||score>100){alert("Invalid score");return;}
+  let stu=data.students[lvl].find(s=>s.id===stuId);
+  if(name) stu.name=name;
+  let {grade,remark}=getGradeRemark(score);
+  stu.grades[sub]={score,grade,remark};
+  document.getElementById("teacherMsg").innerText=`Saved ${stu.name} - ${sub}: ${score} (${grade})`;
 }
 
-// ADMIN DASHBOARD
-function showAdminPage() {
-document.getElementById("loginPage").classList.add("hidden");
-document.getElementById("adminPage").classList.remove("hidden");
-updateTeacherList();
+/* ADMIN FUNCTIONS */
+function showAdminPage(){
+  document.getElementById("loginPage").classList.add("hidden");
+  document.getElementById("adminPage").classList.remove("hidden");
+  updateTeacherList();
+  let lvlSel=document.getElementById("adminLevelSelect");
+  lvlSel.innerHTML=levels.map(l=>`<option value='${l}'>${l}</option>`).join("");
+  updateAdminStudents();
+  let subSel=document.getElementById("adminSubjectSelect");
+  subSel.innerHTML=allSubjects.map(s=>`<option value='${s}'>${s}</option>`).join("");
 }
-function addTeacher() {
-let id = document.getElementById("newTeacherId").value.trim().toUpperCase().replace(/\s+/g,"");
-const teacherPattern = /^CMA-TE\d{3}$/i;
-if (!teacherPattern.test(id)) { alert("Invalid format! Example: CMA-TE081"); return; }
-if (!data.teachers.includes(id)) {
-data.teachers.push(id); saveData(); updateTeacherList();
-alert("Teacher added successfully!");
-} else alert("Teacher already exists.");
+function updateTeacherList(){
+  let ul=document.getElementById("teacherList");
+  ul.innerHTML=data.teachers.map(t=>`<li>${t}</li>`).join("");
 }
-function removeTeacher() {
-let id = document.getElementById("removeTeacherId").value.trim().toUpperCase().replace(/\s+/g,"");
-const index = data.teachers.indexOf(id);
-if (index > -1) {
-data.teachers.splice(index, 1); saveData(); updateTeacherList();
-alert("Teacher removed successfully!");
-} else alert("Teacher not found.");
+function addTeacher(){
+  let id=document.getElementById("newTeacherId").value.trim().toUpperCase();
+  if(/^CMA-TE\d{3}$/.test(id)){if(!data.teachers.includes(id)){data.teachers.push(id);updateTeacherList();alert("Added");}else alert("Exists");}
+  else alert("Invalid format");
 }
-function updateTeacherList() {
-const list = document.getElementById("teacherList"); list.innerHTML = "";
-data.teachers.forEach(t => {
-const li = document.createElement("li"); li.textContent = t; list.appendChild(li);
-});
+function removeTeacher(){
+  let id=document.getElementById("removeTeacherId").value.trim().toUpperCase();
+  let i=data.teachers.indexOf(id);
+  if(i>-1){data.teachers.splice(i,1);updateTeacherList();alert("Removed");}else alert("Not found");
+}
+function updateAdminStudents(){
+  let lvl=document.getElementById("adminLevelSelect").value;
+  let sel=document.getElementById("adminStudentSelect");
+  sel.innerHTML=data.students[lvl].map(s=>`<option value='${s.id}'>${s.name} (${s.id})</option>`).join("");
+}
+document.getElementById("adminLevelSelect").addEventListener("change",updateAdminStudents);
+function adminUpdateGrade(){
+  let lvl=document.getElementById("adminLevelSelect").value;
+  let stuId=document.getElementById("adminStudentSelect").value;
+  let name=document.getElementById("adminNameInput").value.trim();
+  let sub=document.getElementById("adminSubjectSelect").value;
+  let score=parseFloat(document.getElementById("adminScoreInput").value);
+  if(isNaN(score)||score<0||score>100){alert("Invalid score");return;}
+  let stu=data.students[lvl].find(s=>s.id===stuId);
+  if(name) stu.name=name;
+  let {grade,remark}=getGradeRemark(score);
+  stu.grades[sub]={score,grade,remark};
+  document.getElementById("adminMsg").innerText=`Updated ${stu.name} - ${sub}: ${score} (${grade})`;
 }
 
-// LOGOUT
-function logout() { location.reload(); }
+/* LOGOUT */
+function logout(){
+  currentUser=null;
+  document.querySelectorAll(".container").forEach(c=>c.classList.add("hidden"));
+  document.getElementById("loginPage").classList.remove("hidden");
+  document.getElementById("idInput").value="";
+  document.getElementById("nameInput").value="";
+  document.getElementById("adminNameInput").value="";
+  document.getElementById("teacherMsg").innerText="";
+  document.getElementById("adminMsg").innerText="";
+}
 </script>
 </body>
 </html>
-
-	
